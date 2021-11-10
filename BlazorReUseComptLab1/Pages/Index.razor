@@ -1,0 +1,55 @@
+﻿@using System.Text.Json
+@using EasyArchitect.Web.Blazor.Components
+@using BlazorReUseComptLab1.Data
+@inject IHttpClientFactory _client
+
+@page "/"
+
+<h1>Hello, world!</h1>
+
+Welcome to your new app.
+
+<SurveyPrompt Title="How is Blazor working for you?" />
+
+<p>
+    <button @onclick="@GetData">取得資料</button>
+</p>
+<p>
+    <GridView DataSource="_dataSource">
+        <Columns>
+            <GridViewItem ColumnName="CustomerId"></GridViewItem>
+            <GridViewItem ColumnName="ContactName"></GridViewItem>
+            <GridViewItem ColumnName="Address"></GridViewItem>
+        </Columns>
+    </GridView>
+</p>
+
+@code {
+
+    protected string _startUrl = "https://localhost:5001/api/CustomerApi/GetCustomers";
+
+    protected object _dataSource { get; set; } = null;
+
+    private bool getCustomerError;
+
+    protected async Task GetData()
+    {
+        var request = new HttpRequestMessage(HttpMethod.Get, _startUrl);
+
+        var client = _client.CreateClient();
+
+        var response = await client.SendAsync(request);
+
+        if (response.IsSuccessStatusCode)
+        {
+            using var responseStream = await response.Content.ReadAsStreamAsync();
+            _dataSource = await JsonSerializer.DeserializeAsync<IEnumerable<Person>>(
+                responseStream,
+                new JsonSerializerOptions() { PropertyNameCaseInsensitive = true });
+        }
+        else
+        {
+            getCustomerError = true;
+        }
+    }
+}

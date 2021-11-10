@@ -1,0 +1,26 @@
+﻿@using System.Reflection
+
+<table class="table table-primary">
+    <thead>
+        <tr>
+            @ChildContent
+        </tr>
+    </thead>
+    <tbody>
+
+        @if (_dataSource == null)
+        {
+            <p><em>Loading...</em></p>
+        }
+
+        else
+        {
+            foreach (var row in _dataSource as IEnumerable<object>)
+            {
+                @((MarkupString) GetDataRow(row));
+            }
+        }
+
+    </tbody>
+
+</table>
