@@ -12,7 +12,7 @@ Welcome to your new app.
 <SurveyPrompt Title="How is Blazor working for you?" />
 
 <p>
-    <button @onclick="@GetData">取得資料</button>
+    <button @onclick="@GetGridData">取得資料</button>
 </p>
 <p>
     <GridView DataSource="_dataSource">
@@ -20,6 +20,7 @@ Welcome to your new app.
             <GridViewItem ColumnName="CustomerId"></GridViewItem>
             <GridViewItem ColumnName="ContactName"></GridViewItem>
             <GridViewItem ColumnName="Address"></GridViewItem>
+            <GridViewItem ColumnName="City"></GridViewItem>
         </Columns>
     </GridView>
 </p>
@@ -32,24 +33,8 @@ Welcome to your new app.
 
     private bool getCustomerError;
 
-    protected async Task GetData()
+    protected async Task GetGridData()
     {
-        var request = new HttpRequestMessage(HttpMethod.Get, _startUrl);
-
-        var client = _client.CreateClient();
-
-        var response = await client.SendAsync(request);
-
-        if (response.IsSuccessStatusCode)
-        {
-            using var responseStream = await response.Content.ReadAsStreamAsync();
-            _dataSource = await JsonSerializer.DeserializeAsync<IEnumerable<Person>>(
-                responseStream,
-                new JsonSerializerOptions() { PropertyNameCaseInsensitive = true });
-        }
-        else
-        {
-            getCustomerError = true;
-        }
+        _dataSource = await GridView.GetData<Person>(_startUrl);
     }
 }
